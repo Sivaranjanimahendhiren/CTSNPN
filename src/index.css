@@ -1,0 +1,103 @@
+/* ============================================================
+   CTS Healthcare — Global Design System
+   Clinical + Enterprise + Government Healthcare Theme
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* ── Official CTS Color Palette ───────────────────────── */
+  --blue:         #006EB6;   /* Healthcare Blue — primary actions  */
+  --blue-dark:    #005A96;   /* Hover / pressed state              */
+  --blue-light:   #E8F3FB;   /* Blue tint surfaces                 */
+  --navy:         #17365D;   /* Deep Navy — brand / hero           */
+  --navy-dark:    #0F2540;   /* Darker navy for hover              */
+  --teal:         #008C95;   /* Healthcare Teal — secondary        */
+  --teal-light:   #E6F5F6;   /* Teal tint                          */
+  --aqua:         #3BB7B2;   /* Aqua — accent, use sparingly       */
+
+  /* ── Backgrounds ─────────────────────────────────────── */
+  --bg-page:      #F5F7F8;   /* Soft Blue-Gray page bg             */
+  --bg-surface:   #FFFFFF;   /* Card / form surfaces               */
+
+  /* ── Text ─────────────────────────────────────────────── */
+  --text-primary:   #1B2A41;
+  --text-body:      #333333;
+  --text-secondary: #5B6770;
+
+  /* ── Borders ─────────────────────────────────────────── */
+  --border:       #C9D3DA;
+  --border-focus: #006EB6;
+
+  /* ── Semantic ────────────────────────────────────────── */
+  --success:      #16856B;
+  --warning:      #D99A22;
+  --error:        #C0392B;
+  --error-bg:     #FDF3F2;
+  --error-border: #E74C3C;
+
+  /* ── Shadows ─────────────────────────────────────────── */
+  --shadow-card:  0 1px 4px rgba(23, 54, 93, 0.08), 0 2px 12px rgba(23, 54, 93, 0.06);
+  --shadow-focus: 0 0 0 3px rgba(0, 110, 182, 0.2);
+
+  /* ── Typography ──────────────────────────────────────── */
+  --font: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+
+  /* ── Motion ──────────────────────────────────────────── */
+  --fast:  150ms ease;
+  --base:  220ms ease;
+  --slow:  350ms ease;
+
+  /* ── Radius ──────────────────────────────────────────── */
+  --r-sm:  4px;
+  --r-md:  6px;
+  --r-lg:  8px;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-body);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+input, select, textarea { font-family: var(--font); }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* Accessibility: respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}

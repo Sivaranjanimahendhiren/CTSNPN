@@ -1,0 +1,21 @@
+/* Ultra-thin top-edge progress bar — no overlay */
+.bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 9000;
+  background: transparent;
+}
+
+.fill {
+  height: 100%;
+  background: var(--blue);
+  animation: slide 420ms ease-out forwards;
+}
+
+@keyframes slide {
+  from { width: 0%; }
+  to   { width: 100%; }
+}

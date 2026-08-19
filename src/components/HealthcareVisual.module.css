@@ -1,0 +1,13 @@
+.wrapper {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  justify-content: center;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  filter: drop-shadow(0 8px 32px rgba(0,43,73,0.08));
+}

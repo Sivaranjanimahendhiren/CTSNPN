@@ -1,0 +1,103 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  background: #17365D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 300ms ease;
+}
+
+.fadeOut {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  text-align: center;
+}
+
+/* Single icon row */
+.iconWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.125rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #3BB7B2;
+  margin-bottom: 0.25rem;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+
+.iconWrap.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Brand name */
+.brandName {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 250ms ease 60ms, transform 250ms ease 60ms;
+}
+
+.brandName.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Subtitle */
+.subtitle {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+.subtitle.visible {
+  opacity: 1;
+}
+
+/* Thin progress bar */
+.loadingBar {
+  width: 160px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 0.75rem;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.loadingBar.visible {
+  opacity: 1;
+}
+
+.loadingFill {
+  height: 100%;
+  background: #3BB7B2;
+  border-radius: 2px;
+  animation: fillBar 900ms ease-out forwards;
+}
+
+@keyframes fillBar {
+  from { width: 0%; }
+  to   { width: 100%; }
+}

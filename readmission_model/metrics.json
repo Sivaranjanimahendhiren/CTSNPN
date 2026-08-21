@@ -1,0 +1,46 @@
+{
+  "auc": 0.8042511989351885,
+  "average_precision": 0.5227267296721292,
+  "f1_at_0.5": 0.5290840205036773,
+  "n_train": 32000,
+  "n_test": 8000,
+  "positive_rate_train": 0.20984375,
+  "positive_rate_test": 0.209875,
+  "confusion_matrix": [
+    [
+      4700,
+      1621
+    ],
+    [
+      492,
+      1187
+    ]
+  ],
+  "risk_tier_counts": {
+    "Low (10-day follow-up)": 4800,
+    "Medium (15-day follow-up)": 2000,
+    "High (30-day follow-up)": 1200
+  },
+  "risk_tier_actual_readmit_rate": {
+    "High (30-day follow-up)": 0.5433333333333333,
+    "Low (10-day follow-up)": 0.08520833333333333,
+    "Medium (15-day follow-up)": 0.309
+  },
+  "top_15_features": {
+    "age": 0.09908223152160645,
+    "previous_admissions_12m": 0.09427705407142639,
+    "comorbidity_index": 0.07311893999576569,
+    "ckd_flag": 0.05588923394680023,
+    "follow_up_within_7_days_flag": 0.041305337101221085,
+    "heart_failure_flag": 0.03550201654434204,
+    "previous_er_visits_12m": 0.034178707748651505,
+    "hist_days_since_last_visit": 0.03402482718229294,
+    "high_risk_medication_flag": 0.033577170222997665,
+    "medication_count_at_discharge": 0.02868591994047165,
+    "icu_stay_flag": 0.026656601577997208,
+    "prior_30_day_readmission_flag": 0.023402957245707512,
+    "discharge_destination": 0.023352857679128647,
+    "dementia_flag": 0.023067746311426163,
+    "copd_flag": 0.02140541933476925
+  }
+}

@@ -1,3 +1,12 @@
 __pycache__/
 *.pyc
 .env
+# readmission_model excludes
+readmission_model/generate_longitudinal.py
+readmission_model/patient_data_40k.csv
+readmission_model/synthetic_longitudinal_full.csv
+readmission_model/patient_data_enriched.csv
+readmission_model/readmission_model.joblib
+readmission_model/patient_risk_classification.csv
+readmission_model/risk_tier_output.csv
+readmission_model/sample_input_output.csv

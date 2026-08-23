@@ -1,0 +1,185 @@
+﻿{
+  "Comment": "CTS-NPN Use Case 7 + 12 research-to-report workflow",
+  "StartAt": "Planner",
+  "States": {
+
+    "Planner": {
+      "Type": "Task",
+      "Resource": "${PlannerArn}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "ParallelResearch"
+    },
+
+
+    "ParallelResearch": {
+
+      "Type": "Parallel",
+
+      "Branches": [
+
+        {
+          "StartAt": "Research",
+
+          "States": {
+
+            "Research": {
+              "Type": "Task",
+              "Resource": "${ResearchArn}",
+              "End": true
+            }
+
+          }
+        },
+
+        {
+          "StartAt": "CMS",
+
+          "States": {
+
+            "CMS": {
+              "Type": "Task",
+              "Resource": "${CMSArn}",
+              "End": true
+            }
+
+          }
+        }
+
+      ],
+
+      "ResultPath": "$.parallel_results",
+
+      "Next": "MergeEvidence"
+
+    },
+
+
+    "MergeEvidence": {
+
+      "Type": "Pass",
+
+      "Parameters": {
+
+        "run_id.$": "$.run_id",
+
+        "question.$": "$.question",
+
+        "plan.$": "$.plan",
+
+        "research.$": "$.parallel_results[0]",
+
+        "cms_findings.$": "$.parallel_results[1]"
+
+      },
+
+      "Next": "Evidence"
+
+    },
+
+
+    "Evidence": {
+
+      "Type": "Task",
+
+      "Resource": "${EvidenceArn}",
+
+      "Retry": [
+
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+
+      ],
+
+      "Next": "Synthesis"
+
+    },
+
+
+    "Synthesis": {
+
+      "Type": "Task",
+
+      "Resource": "${SynthesisArn}",
+
+      "Retry": [
+
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 3,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+
+      ],
+
+      "Next": "Critic"
+
+    },
+
+
+    "Critic": {
+
+      "Type": "Task",
+
+      "Resource": "${CriticArn}",
+
+      "Retry": [
+
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 3,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+
+      ],
+
+      "Next": "PDFGenerator"
+
+    },
+
+
+    "PDFGenerator": {
+
+      "Type": "Task",
+
+      "Resource": "${PDFGeneratorArn}",
+
+      "Retry": [
+
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+
+      ],
+
+      "End": true
+
+    }
+
+  }
+}

@@ -87,3 +87,39 @@ pip-delete-this-directory.txt
 # Large files
 *.tar.gz
 *.zip
+__pycache__/
+*.pyc
+.env
+# readmission_model excludes
+readmission_model/generate_longitudinal.py
+readmission_model/patient_data_40k.csv
+readmission_model/synthetic_longitudinal_full.csv
+readmission_model/patient_data_enriched.csv
+readmission_model/readmission_model.joblib
+readmission_model/patient_risk_classification.csv
+readmission_model/risk_tier_output.csv
+readmission_model/sample_input_output.csv
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

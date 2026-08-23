@@ -1,0 +1,819 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  CTS-NPN Use Case 7 + 12 serverless multi-agent
+  research-to-report system.
+  Large research artifacts are stored in S3 and
+  Step Functions passes lightweight references
+  and execution metadata.
+
+
+# ============================================================
+# PARAMETERS
+# ============================================================
+
+Parameters:
+
+  BedrockModelId:
+    Type: String
+    Default: amazon.nova-micro-v1:0
+    Description: Bedrock model used by planner, research and synthesis agents.
+
+  CmsPdcDatasetId:
+    Type: String
+    Default: mj5m-pzi6
+    Description: CMS Provider Data Catalog dataset ID.
+
+
+# ============================================================
+# GLOBAL LAMBDA CONFIGURATION
+# ============================================================
+
+Globals:
+
+  Function:
+
+    Runtime: python3.12
+
+    MemorySize: 512
+
+    Timeout: 120
+
+    Environment:
+
+      Variables:
+
+        RESEARCH_BUCKET:
+          Ref: ResearchBucket
+
+        CMS_BUCKET:
+          Ref: CmsBucket
+
+        REPORTS_BUCKET:
+          Ref: ReportsBucket
+
+        RESULTS_TABLE:
+          Ref: ResultsTable
+
+        BEDROCK_MODEL_ID:
+          Ref: BedrockModelId
+
+        CMS_PDC_DATASET_ID:
+          Ref: CmsPdcDatasetId
+
+
+# ============================================================
+# RESOURCES
+# ============================================================
+
+Resources:
+
+
+  # ==========================================================
+  # S3 - RESEARCH ARTIFACTS
+  # ==========================================================
+
+  ResearchBucket:
+
+    Type: AWS::S3::Bucket
+
+    DeletionPolicy: Retain
+
+    UpdateReplacePolicy: Retain
+
+    Properties:
+
+      BucketEncryption:
+
+        ServerSideEncryptionConfiguration:
+
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+      PublicAccessBlockConfiguration:
+
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+      VersioningConfiguration:
+        Status: Enabled
+
+      Tags:
+
+        - Key: Project
+          Value: CTS-NPN
+
+        - Key: Purpose
+          Value: ResearchArtifacts
+
+
+  # ==========================================================
+  # S3 - CMS DATA
+  # ==========================================================
+
+  CmsBucket:
+
+    Type: AWS::S3::Bucket
+
+    DeletionPolicy: Retain
+
+    UpdateReplacePolicy: Retain
+
+    Properties:
+
+      BucketEncryption:
+
+        ServerSideEncryptionConfiguration:
+
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+      PublicAccessBlockConfiguration:
+
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+      VersioningConfiguration:
+        Status: Enabled
+
+      Tags:
+
+        - Key: Project
+          Value: CTS-NPN
+
+        - Key: Purpose
+          Value: CMSData
+
+
+  # ==========================================================
+  # S3 - GENERATED REPORTS
+  # ==========================================================
+
+  ReportsBucket:
+
+    Type: AWS::S3::Bucket
+
+    DeletionPolicy: Retain
+
+    UpdateReplacePolicy: Retain
+
+    Properties:
+
+      BucketEncryption:
+
+        ServerSideEncryptionConfiguration:
+
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+      PublicAccessBlockConfiguration:
+
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+      VersioningConfiguration:
+        Status: Enabled
+
+      Tags:
+
+        - Key: Project
+          Value: CTS-NPN
+
+        - Key: Purpose
+          Value: ResearchReports
+
+
+  # ==========================================================
+  # DYNAMODB
+  # ==========================================================
+
+  ResultsTable:
+
+    Type: AWS::DynamoDB::Table
+
+    DeletionPolicy: Retain
+
+    UpdateReplacePolicy: Retain
+
+    Properties:
+
+      BillingMode: PAY_PER_REQUEST
+
+      AttributeDefinitions:
+
+        - AttributeName: run_id
+          AttributeType: S
+
+      KeySchema:
+
+        - AttributeName: run_id
+          KeyType: HASH
+
+      SSESpecification:
+
+        SSEEnabled: true
+
+      PointInTimeRecoverySpecification:
+
+        PointInTimeRecoveryEnabled: true
+
+      Tags:
+
+        - Key: Project
+          Value: CTS-NPN
+
+        - Key: Purpose
+          Value: ResearchRunState
+
+
+  # ==========================================================
+  # API
+  # ==========================================================
+
+  ApiFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      CodeUri: .
+
+      Handler: backend/api/handler.lambda_handler
+
+      Environment:
+
+        Variables:
+
+          STATE_MACHINE_ARN:
+            Fn::GetAtt:
+              - ResearchStateMachine
+              - Arn
+
+      Policies:
+
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: ResultsTable
+
+        - Statement:
+
+            Effect: Allow
+
+            Action:
+
+              - states:StartExecution
+
+            Resource:
+
+              - Fn::GetAtt:
+                  - ResearchStateMachine
+                  - Arn
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ReportsBucket
+
+      Events:
+
+        Start:
+
+          Type: HttpApi
+
+          Properties:
+
+            Path: /research
+
+            Method: POST
+
+        Status:
+
+          Type: HttpApi
+
+          Properties:
+
+            Path: /research/{run_id}
+
+            Method: GET
+
+        Report:
+
+          Type: HttpApi
+
+          Properties:
+
+            Path: /research/{run_id}/report
+
+            Method: GET
+
+
+  # ==========================================================
+  # PLANNER AGENT
+  # ==========================================================
+
+  PlannerFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      CodeUri: .
+
+      Handler: backend/agents/planner/handler.lambda_handler
+
+      Policies:
+
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: ResultsTable
+
+        - Statement:
+
+            Effect: Allow
+
+            Action:
+
+              - bedrock:Converse
+              - bedrock:InvokeModel
+
+            Resource: "*"
+
+
+  # ==========================================================
+  # RESEARCH AGENT
+  # ==========================================================
+
+  ResearchFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      CodeUri: .
+
+      Handler: backend/agents/research/handler.lambda_handler
+
+      Policies:
+
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: ResultsTable
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ResearchBucket
+
+        - S3WritePolicy:
+            BucketName:
+              Ref: ResearchBucket
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: CmsBucket
+
+        - Statement:
+
+            Effect: Allow
+
+            Action:
+
+              - bedrock:Converse
+
+            Resource: "*"
+
+
+  # ==========================================================
+  # CMS AGENT
+  # ==========================================================
+
+  CmsFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      CodeUri: .
+
+      Handler: backend/agents/cms/handler.lambda_handler
+
+      Policies:
+
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: ResultsTable
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: CmsBucket
+
+        - S3WritePolicy:
+            BucketName:
+              Ref: CmsBucket
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ResearchBucket
+
+
+  # ==========================================================
+  # EVIDENCE AGENT
+  # ==========================================================
+
+  EvidenceFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      CodeUri: .
+
+      Handler: backend/agents/evidence/handler.lambda_handler
+
+      Policies:
+
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: ResultsTable
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ResearchBucket
+
+        - S3WritePolicy:
+            BucketName:
+              Ref: ResearchBucket
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: CmsBucket
+
+
+  # ==========================================================
+  # SYNTHESIS AGENT
+  # ==========================================================
+
+  SynthesisFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      CodeUri: .
+
+      Handler: backend/agents/synthesis/handler.lambda_handler
+
+      Timeout: 300
+
+      MemorySize: 1024
+
+      Policies:
+
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: ResultsTable
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ResearchBucket
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: CmsBucket
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ReportsBucket
+
+        - S3WritePolicy:
+            BucketName:
+              Ref: ReportsBucket
+
+        - Statement:
+
+            Effect: Allow
+
+            Action:
+
+              - bedrock:Converse
+              - bedrock:InvokeModel
+
+            Resource: "*"
+
+      Environment:
+
+        Variables:
+
+          REPORT_TEMPLATE_S3_BUCKET:
+            Ref: ReportsBucket
+
+
+  # ==========================================================
+  # CRITIC AGENT
+  # ==========================================================
+
+  CriticFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      CodeUri: .
+
+      Handler: backend/agents/critic/handler.lambda_handler
+
+      Timeout: 300
+
+      MemorySize: 1024
+
+      Policies:
+
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: ResultsTable
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ReportsBucket
+
+        - S3WritePolicy:
+            BucketName:
+              Ref: ReportsBucket
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ResearchBucket
+
+        - Statement:
+
+            Effect: Allow
+
+            Action:
+
+              - bedrock:Converse
+              - bedrock:InvokeModel
+
+            Resource: "*"
+
+
+  # ==========================================================
+  # PDF GENERATOR
+  # ==========================================================
+
+  PDFGeneratorFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      CodeUri: .
+
+      Handler: backend/agents/pdf_generator/handler.lambda_handler
+
+      Timeout: 300
+
+      MemorySize: 1024
+
+      Policies:
+
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: ResultsTable
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ReportsBucket
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: ResearchBucket
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: CmsBucket
+
+        - S3WritePolicy:
+            BucketName:
+              Ref: ReportsBucket
+
+      Environment:
+
+        Variables:
+
+          ARTIFACT_BUCKET:
+            Ref: ResearchBucket
+
+          REPORTS_BUCKET:
+            Ref: ReportsBucket
+
+
+  # ==========================================================
+  # CMS SYNC
+  # ==========================================================
+
+  CmsSyncFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      CodeUri: .
+
+      Handler: backend/api/cms_sync.lambda_handler
+
+      Timeout: 180
+
+      MemorySize: 512
+
+      Policies:
+
+        - DynamoDBCrudPolicy:
+            TableName:
+              Ref: ResultsTable
+
+        - S3ReadPolicy:
+            BucketName:
+              Ref: CmsBucket
+
+        - S3WritePolicy:
+            BucketName:
+              Ref: CmsBucket
+
+      Events:
+
+        Schedule:
+
+          Type: Schedule
+
+          Properties:
+
+            Schedule: rate(15 minutes)
+
+            Enabled: true
+
+
+  # ==========================================================
+  # STEP FUNCTIONS STATE MACHINE
+  # ==========================================================
+
+  ResearchStateMachine:
+
+    Type: AWS::Serverless::StateMachine
+
+    Properties:
+
+      DefinitionUri: workflow/research_state_machine.json
+
+      DefinitionSubstitutions:
+
+        PlannerArn:
+          Fn::GetAtt:
+            - PlannerFunction
+            - Arn
+
+        ResearchArn:
+          Fn::GetAtt:
+            - ResearchFunction
+            - Arn
+
+        CMSArn:
+          Fn::GetAtt:
+            - CmsFunction
+            - Arn
+
+        EvidenceArn:
+          Fn::GetAtt:
+            - EvidenceFunction
+            - Arn
+
+        SynthesisArn:
+          Fn::GetAtt:
+            - SynthesisFunction
+            - Arn
+
+        CriticArn:
+          Fn::GetAtt:
+            - CriticFunction
+            - Arn
+
+        PDFGeneratorArn:
+          Fn::GetAtt:
+            - PDFGeneratorFunction
+            - Arn
+
+      Policies:
+
+        - LambdaInvokePolicy:
+
+            FunctionName:
+              Ref: PlannerFunction
+
+        - LambdaInvokePolicy:
+
+            FunctionName:
+              Ref: ResearchFunction
+
+        - LambdaInvokePolicy:
+
+            FunctionName:
+              Ref: CmsFunction
+
+        - LambdaInvokePolicy:
+
+            FunctionName:
+              Ref: EvidenceFunction
+
+        - LambdaInvokePolicy:
+
+            FunctionName:
+              Ref: SynthesisFunction
+
+        - LambdaInvokePolicy:
+
+            FunctionName:
+              Ref: CriticFunction
+
+        - LambdaInvokePolicy:
+
+            FunctionName:
+              Ref: PDFGeneratorFunction
+
+
+# ============================================================
+# OUTPUTS
+# ============================================================
+
+Outputs:
+
+  ApiUrl:
+
+    Description: CTS-NPN Research API URL
+
+    Value:
+      Fn::Sub:
+        - https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com
+        - {}
+
+
+  StateMachineArn:
+
+    Description: Research Step Functions state machine ARN
+
+    Value:
+      Fn::GetAtt:
+        - ResearchStateMachine
+        - Arn
+
+
+  ResultsTable:
+
+    Description: DynamoDB research results table
+
+    Value:
+      Ref: ResultsTable
+
+
+  ResearchBucket:
+
+    Description: S3 bucket containing research evidence and artifacts
+
+    Value:
+      Ref: ResearchBucket
+
+
+  CmsBucket:
+
+    Description: S3 bucket containing CMS data
+
+    Value:
+      Ref: CmsBucket
+
+
+  ReportsBucket:
+
+    Description: S3 bucket containing generated research reports
+
+    Value:
+      Ref: ReportsBucket
+
+
+  CmsSyncFunction:
+
+    Description: CMS synchronization Lambda function
+
+    Value:
+      Ref: CmsSyncFunction
+
+
+  PDFGeneratorFunction:
+
+    Description: Lambda function responsible for generating PDF reports
+
+    Value:
+      Ref: PDFGeneratorFunction

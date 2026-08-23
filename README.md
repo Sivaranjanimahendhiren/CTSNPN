@@ -51,7 +51,6 @@ Next Patient Event
 │   ├── utils/              # Tracers & logging utilities
 │   ├── views/              # MVC Views (Console & Telegram formatted outputs)
 │   └── orchestrator.py     # Multi-patient orchestrator
-├── tests/                  # Pytest unit & end-to-end test suite
 ├── api.py                  # FastAPI REST Gateway
 ├── telegram_bot.py         # Telegram AI Nurse Bot runner
 ├── demo_showcase.py        # End-to-end clinical workflow showcase
@@ -86,13 +85,7 @@ Copy `.env.example` to `.env` and fill in your API credentials:
 cp .env.example .env
 ```
 
-### 3. Run Tests
-
-```bash
-pytest
-```
-
-### 4. Running Services
+### 3. Running Services
 
 - **FastAPI REST API:**
   ```bash
@@ -106,4 +99,4 @@ pytest
   ```bash
   python demo_showcase.py
   ```
-```
+

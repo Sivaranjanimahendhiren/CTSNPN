@@ -1,0 +1,751 @@
+{
+  "database": "carepath",
+  "dbms": "PostgreSQL 18",
+  "total_tables": 32,
+  "total_columns": 400,
+  "total_fk_constraints": 42,
+  "generated_from": "live database",
+  "domains": [
+    "Identity & Auth",
+    "Patient Health Records",
+    "Clinical Assessment Pipeline",
+    "Care Plans",
+    "Providers & Facilities",
+    "Encounters, Labs & Files",
+    "Hospital Analytics",
+    "CMS Analytics"
+  ],
+  "tables": {
+    "users": {
+      "domain": "Identity & Auth",
+      "description": "Root identity table. All portal logins start here.",
+      "row_count": 4,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "email", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "password_hash", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "role", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null, "values": ["PATIENT","HOSPITAL_STAFF","CMS_ANALYST","ADMIN"] },
+        { "name": "is_active", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "patients": {
+      "domain": "Identity & Auth",
+      "description": "Patient profile. Optionally linked to a users account for portal login.",
+      "row_count": 6,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "user_id", "type": "uuid", "nullable": true, "pk": false, "fk": "users.id", "default": null },
+        { "name": "name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "date_of_birth", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "age", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "gender", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "blood_group", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "phone", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "email", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "address", "type": "text", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "profile_picture_url", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "hospital_staff": {
+      "domain": "Identity & Auth",
+      "description": "Links a users account to a hospital with role and department.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "user_id", "type": "uuid", "nullable": false, "pk": false, "fk": "users.id", "default": null },
+        { "name": "hospital_id", "type": "uuid", "nullable": false, "pk": false, "fk": "hospitals.id", "default": null },
+        { "name": "staff_role", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "department", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "payer_organizations": {
+      "domain": "Identity & Auth",
+      "description": "Insurance and CMS payer entities.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "organization_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "cms_users": {
+      "domain": "Identity & Auth",
+      "description": "Links a users account to a payer organization with a CMS role.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "user_id", "type": "uuid", "nullable": false, "pk": false, "fk": "users.id", "default": null },
+        { "name": "payer_id", "type": "uuid", "nullable": false, "pk": false, "fk": "payer_organizations.id", "default": null },
+        { "name": "role", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "patient_data_records": {
+      "domain": "Patient Health Records",
+      "description": "OMOP-aligned EHR import table. 34 columns per visit. Primary ML model input.",
+      "row_count": 18,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "source_record_key", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "source_patient_id", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "age", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "gender", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "history_diabetes", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "history_hypertension", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "history_heart_disease", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "history_copd", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "history_asthma", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "history_kidney_disease", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "history_stroke_or_tia", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "history_cancer", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "facility_name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "hospital_visit_date", "type": "date", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "num_ed_visits_last_12m", "type": "integer", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "days_since_last_discharge", "type": "integer", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "active_medication_count", "type": "integer", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "on_immunosuppressants", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "on_blood_thinners", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "on_cardiac_meds", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "on_insulin", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "on_metformin", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "on_albuterol_inhaler", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "on_opioids", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "last_lab_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "fasting_glucose", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null, "unit": "mg/dL" },
+        { "name": "hba1c", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null, "unit": "%" },
+        { "name": "systolic_bp", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null, "unit": "mmHg" },
+        { "name": "cholesterol_ldl", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null, "unit": "mg/dL" },
+        { "name": "bun", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null, "unit": "mg/dL" },
+        { "name": "creatinine", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null, "unit": "mg/dL" },
+        { "name": "imported_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "patient_conditions": {
+      "domain": "Patient Health Records",
+      "description": "Active and historical diagnoses per patient.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "condition", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "first_seen_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "last_seen_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "source_record_id", "type": "uuid", "nullable": true, "pk": false, "fk": "patient_data_records.id", "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "patient_medications": {
+      "domain": "Patient Health Records",
+      "description": "Medication history with optional OMOP/RxNorm code.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "medication_name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "medication_code", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "active", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "first_seen_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "last_seen_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "source_record_id", "type": "uuid", "nullable": true, "pk": false, "fk": "patient_data_records.id", "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "patient_allergies": {
+      "domain": "Patient Health Records",
+      "description": "Allergen, reaction, and severity per patient.",
+      "row_count": 7,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "allergen", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "reaction", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "severity", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null, "values": ["Mild","Moderate","Severe"] },
+        { "name": "active", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "patient_preferences": {
+      "domain": "Patient Health Records",
+      "description": "AI consent, data sharing, and communication preferences. One row per patient.",
+      "row_count": 6,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null, "unique": true },
+        { "name": "ai_data_analysis", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "share_with_specialists", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "communication_preference", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null, "values": ["Email","SMS","Phone"] },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "emergency_contacts": {
+      "domain": "Patient Health Records",
+      "description": "Patient emergency contacts.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "relationship", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "phone", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "email", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "is_primary", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "patient_activity_log": {
+      "domain": "Patient Health Records",
+      "description": "Full audit trail of all patient-facing events.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "activity_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "reference_type", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "reference_id", "type": "uuid", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "title", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "description", "type": "text", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "activity_date", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "assessments": {
+      "domain": "Clinical Assessment Pipeline",
+      "description": "A triage session. Captures what the patient reports at submission time.",
+      "row_count": 2,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null, "values": ["Submitted","Completed","Cancelled"] },
+        { "name": "primary_symptom", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "duration", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "severity", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null, "range": "1-10" },
+        { "name": "worsening", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null, "values": ["Yes","No","Same"] },
+        { "name": "additional_notes", "type": "text", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "medical_context_confirmed", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "started_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "submitted_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "completed_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "assessment_symptoms": {
+      "domain": "Clinical Assessment Pipeline",
+      "description": "Each additional symptom selected during an assessment.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "assessment_id", "type": "uuid", "nullable": false, "pk": false, "fk": "assessments.id", "default": null },
+        { "name": "symptom", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "symptom_code", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "selected", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "assessment_safety_questions": {
+      "domain": "Clinical Assessment Pipeline",
+      "description": "Boolean safety screening questions answered during triage. Read by the ESI safety gate.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "assessment_id", "type": "uuid", "nullable": false, "pk": false, "fk": "assessments.id", "default": null },
+        { "name": "question_code", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "question_text", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "answer", "type": "boolean", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "assessment_medical_context": {
+      "domain": "Clinical Assessment Pipeline",
+      "description": "Confirmed medical history key-value pairs for this assessment session.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "assessment_id", "type": "uuid", "nullable": false, "pk": false, "fk": "assessments.id", "default": null },
+        { "name": "context_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "context_key", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "context_value", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "confirmed", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "care_recommendations": {
+      "domain": "Clinical Assessment Pipeline",
+      "description": "AI/rules engine output — the triage decision with full explanation.",
+      "row_count": 2,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "assessment_id", "type": "uuid", "nullable": false, "pk": false, "fk": "assessments.id", "default": null },
+        { "name": "recommendation_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null, "values": ["Emergency","Urgent Care","Primary Care","Telehealth"] },
+        { "name": "title", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "timeframe", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "priority_level", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null, "values": ["Critical","High","Medium","Low"] },
+        { "name": "emergency_flag", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "reason", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "explanation", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "safety_advisory", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "model_name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "generated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "emergency_requests": {
+      "domain": "Clinical Assessment Pipeline",
+      "description": "Created automatically when care_recommendations.emergency_flag = true.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "assessment_id", "type": "uuid", "nullable": false, "pk": false, "fk": "assessments.id", "default": null },
+        { "name": "recommendation_id", "type": "uuid", "nullable": true, "pk": false, "fk": "care_recommendations.id", "default": null },
+        { "name": "priority", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "request_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "notes", "type": "text", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "care_plans": {
+      "domain": "Care Plans",
+      "description": "Active care roadmap tying patient + assessment + recommendation together.",
+      "row_count": 2,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "assessment_id", "type": "uuid", "nullable": false, "pk": false, "fk": "assessments.id", "default": null },
+        { "name": "recommendation_id", "type": "uuid", "nullable": false, "pk": false, "fk": "care_recommendations.id", "default": null },
+        { "name": "title", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "category", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "subtitle", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "description", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null, "values": ["Active","Completed","Cancelled"] },
+        { "name": "active", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "start_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "end_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "care_plan_actions": {
+      "domain": "Care Plans",
+      "description": "Step-by-step actionable tasks within a care plan.",
+      "row_count": 2,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "care_plan_id", "type": "uuid", "nullable": false, "pk": false, "fk": "care_plans.id", "default": null },
+        { "name": "title", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "description", "type": "text", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "action_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "frequency", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "due_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "sort_order", "type": "integer", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "completed_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "care_plan_providers": {
+      "domain": "Care Plans",
+      "description": "Providers recommended or assigned to a care plan.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "care_plan_id", "type": "uuid", "nullable": false, "pk": false, "fk": "care_plans.id", "default": null },
+        { "name": "provider_id", "type": "uuid", "nullable": false, "pk": false, "fk": "providers.id", "default": null },
+        { "name": "role", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "recommended", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "daily_goals": {
+      "domain": "Care Plans",
+      "description": "Daily patient checkbox goals generated from a care plan.",
+      "row_count": 2,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "care_plan_id", "type": "uuid", "nullable": false, "pk": false, "fk": "care_plans.id", "default": null },
+        { "name": "goal_text", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "frequency", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "completed", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "goal_date", "type": "date", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "safety_protocols": {
+      "domain": "Care Plans",
+      "description": "Emergency warning triggers attached to a care plan.",
+      "row_count": 2,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "care_plan_id", "type": "uuid", "nullable": false, "pk": false, "fk": "care_plans.id", "default": null },
+        { "name": "title", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "description", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "severity", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "emergency_action", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "providers": {
+      "domain": "Providers & Facilities",
+      "description": "Care providers with geolocation for facility matching.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "provider_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "specialty", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "facility_name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "phone", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "address", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "latitude", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "longitude", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "available", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "hospitals": {
+      "domain": "Providers & Facilities",
+      "description": "Hospital and facility registry.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "facility_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "address", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "city", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "state", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "healthcare_encounters": {
+      "domain": "Encounters, Labs & Files",
+      "description": "Visit history — ED, inpatient, outpatient per patient.",
+      "row_count": 18,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "provider_id", "type": "uuid", "nullable": true, "pk": false, "fk": "providers.id", "default": null },
+        { "name": "source_record_id", "type": "uuid", "nullable": true, "pk": false, "fk": "patient_data_records.id", "default": null },
+        { "name": "encounter_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "facility_name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "encounter_date", "type": "date", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "discharge_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "is_emergency", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "ed_visits_last_12m", "type": "integer", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "days_since_last_discharge", "type": "integer", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "notes", "type": "text", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "primary_diagnosis", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "icd10_code", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "lab_results": {
+      "domain": "Encounters, Labs & Files",
+      "description": "Clinical lab values per patient per date.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "source_record_id", "type": "uuid", "nullable": true, "pk": false, "fk": "patient_data_records.id", "default": null },
+        { "name": "lab_date", "type": "date", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "fasting_glucose", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "hba1c", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "systolic_bp", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "cholesterol_ldl", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "bun", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "creatinine", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "medical_files": {
+      "domain": "Encounters, Labs & Files",
+      "description": "Uploaded clinical document metadata. Actual bytes stored on disk in uploads/.",
+      "row_count": 24,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "provider_id", "type": "uuid", "nullable": true, "pk": false, "fk": "providers.id", "default": null },
+        { "name": "name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "description", "type": "text", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "category", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "file_url", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "file_type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "file_size", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "icon_type", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "document_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "uploaded_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "file_ai_summaries": {
+      "domain": "Encounters, Labs & Files",
+      "description": "AI-generated overview and key findings for each medical file.",
+      "row_count": 24,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "medical_file_id", "type": "uuid", "nullable": false, "pk": false, "fk": "medical_files.id", "default": null, "unique": true },
+        { "name": "overview", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "key_findings", "type": "text", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "model_name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "generated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "claims": {
+      "domain": "Encounters, Labs & Files",
+      "description": "Insurance claims with billing amounts and ICD/CPT codes.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": "gen_random_uuid()" },
+        { "name": "claim_id", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "encounter_id", "type": "uuid", "nullable": true, "pk": false, "fk": "healthcare_encounters.id", "default": null },
+        { "name": "payer_name", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "claim_type", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "service_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "claim_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "diagnosis_icd10", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "procedure_cpt", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "billed_amount", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "allowed_amount", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "paid_amount", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "patient_responsibility", "type": "numeric", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": "Pending" },
+        { "name": "prior_auth_required", "type": "boolean", "nullable": true, "pk": false, "fk": null, "default": "false" },
+        { "name": "coverage_type", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": "now()" },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": "now()" }
+      ]
+    },
+    "patient_procedures": {
+      "domain": "Encounters, Labs & Files",
+      "description": "Clinical procedures linked to encounters.",
+      "row_count": 0,
+      "columns": [
+        { "name": "id", "type": "uuid", "nullable": false, "pk": true, "fk": null, "default": "gen_random_uuid()" },
+        { "name": "patient_id", "type": "uuid", "nullable": false, "pk": false, "fk": "patients.id", "default": null },
+        { "name": "encounter_id", "type": "uuid", "nullable": true, "pk": false, "fk": "healthcare_encounters.id", "default": null },
+        { "name": "procedure_name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "cpt_code", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "procedure_date", "type": "date", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": "now()" }
+      ]
+    },
+    "hos_ed_trends": {
+      "domain": "Hospital Analytics",
+      "description": "Daily ED total vs avoidable visits chart data.",
+      "row_count": 7,
+      "columns": [
+        { "name": "id", "type": "integer", "nullable": false, "pk": true, "fk": null, "default": "auto-increment" },
+        { "name": "day", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "total", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "avoidable", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "hos_request_volume": {
+      "domain": "Hospital Analytics",
+      "description": "Daily care request volume chart data.",
+      "row_count": 7,
+      "columns": [
+        { "name": "id", "type": "integer", "nullable": false, "pk": true, "fk": null, "default": "auto-increment" },
+        { "name": "day", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "volume", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "hos_avoidable_diagnoses": {
+      "domain": "Hospital Analytics",
+      "description": "ICD code breakdown of avoidable diagnoses.",
+      "row_count": 4,
+      "columns": [
+        { "name": "id", "type": "integer", "nullable": false, "pk": true, "fk": null, "default": "auto-increment" },
+        { "name": "code", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "count", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "percentage", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "hos_care_actions": {
+      "domain": "Hospital Analytics",
+      "description": "Hospital staff action queue.",
+      "row_count": 3,
+      "columns": [
+        { "name": "id", "type": "varchar", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "initials", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "mrn", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "action_required", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "action_subtitle", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "priority", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "assigned_to", "type": "json", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "hos_care_requests": {
+      "domain": "Hospital Analytics",
+      "description": "Authorization request queue with AI assessment JSON.",
+      "row_count": 4,
+      "columns": [
+        { "name": "id", "type": "varchar", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "patient_id", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "patient_name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "dob", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "mrn", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "type", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "priority", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "status", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "requested_ago", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "primary_care", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "insurance", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "conditions", "type": "json", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "recent_utilization", "type": "json", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "ai_assessment", "type": "json", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "determination_notes", "type": "text", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "auth_duration_days", "type": "integer", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "updated_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "cms_metric_trends": {
+      "domain": "CMS Analytics",
+      "description": "Weekly ED and repeat visit trend data.",
+      "row_count": 4,
+      "columns": [
+        { "name": "id", "type": "integer", "nullable": false, "pk": true, "fk": null, "default": "auto-increment" },
+        { "name": "week", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "ed_visits", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "repeat_visits", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "cms_engagement_trends": {
+      "domain": "CMS Analytics",
+      "description": "Quarterly ED vs PCP visit engagement data.",
+      "row_count": 5,
+      "columns": [
+        { "name": "id", "type": "integer", "nullable": false, "pk": true, "fk": null, "default": "auto-increment" },
+        { "name": "time", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "ed_visits", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "pcp_visits", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "cms_member_risks": {
+      "domain": "CMS Analytics",
+      "description": "Risk-stratified member list for population health management.",
+      "row_count": 5,
+      "columns": [
+        { "name": "id", "type": "varchar", "nullable": false, "pk": true, "fk": null, "default": null },
+        { "name": "ed_visits", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "pcp_visits", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "urgent_visits", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "hosp_visits", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "last_discharge", "type": "varchar", "nullable": true, "pk": false, "fk": null, "default": null },
+        { "name": "pattern", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "priority", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "created_at", "type": "timestamp", "nullable": true, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "cms_provider_analytics": {
+      "domain": "CMS Analytics",
+      "description": "Per-hospital performance metrics.",
+      "row_count": 3,
+      "columns": [
+        { "name": "id", "type": "integer", "nullable": false, "pk": true, "fk": null, "default": "auto-increment" },
+        { "name": "name", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "code", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "ed_visits", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "repeat_rate", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "post_discharge", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "nav_rate", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "trend", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null }
+      ]
+    },
+    "cms_visit_distributions": {
+      "domain": "CMS Analytics",
+      "description": "Visit frequency histogram data.",
+      "row_count": 4,
+      "columns": [
+        { "name": "id", "type": "integer", "nullable": false, "pk": true, "fk": null, "default": "auto-increment" },
+        { "name": "visits", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "members", "type": "integer", "nullable": false, "pk": false, "fk": null, "default": null },
+        { "name": "color", "type": "varchar", "nullable": false, "pk": false, "fk": null, "default": null }
+      ]
+    }
+  },
+  "foreign_keys": [
+    { "table": "assessment_medical_context", "column": "assessment_id", "references": "assessments.id" },
+    { "table": "assessment_safety_questions", "column": "assessment_id", "references": "assessments.id" },
+    { "table": "assessment_symptoms", "column": "assessment_id", "references": "assessments.id" },
+    { "table": "assessments", "column": "patient_id", "references": "patients.id" },
+    { "table": "care_plan_actions", "column": "care_plan_id", "references": "care_plans.id" },
+    { "table": "care_plan_providers", "column": "care_plan_id", "references": "care_plans.id" },
+    { "table": "care_plan_providers", "column": "provider_id", "references": "providers.id" },
+    { "table": "care_plans", "column": "patient_id", "references": "patients.id" },
+    { "table": "care_plans", "column": "assessment_id", "references": "assessments.id" },
+    { "table": "care_plans", "column": "recommendation_id", "references": "care_recommendations.id" },
+    { "table": "care_recommendations", "column": "assessment_id", "references": "assessments.id" },
+    { "table": "claims", "column": "patient_id", "references": "patients.id" },
+    { "table": "claims", "column": "encounter_id", "references": "healthcare_encounters.id" },
+    { "table": "cms_users", "column": "user_id", "references": "users.id" },
+    { "table": "cms_users", "column": "payer_id", "references": "payer_organizations.id" },
+    { "table": "daily_goals", "column": "care_plan_id", "references": "care_plans.id" },
+    { "table": "emergency_contacts", "column": "patient_id", "references": "patients.id" },
+    { "table": "emergency_requests", "column": "patient_id", "references": "patients.id" },
+    { "table": "emergency_requests", "column": "assessment_id", "references": "assessments.id" },
+    { "table": "emergency_requests", "column": "recommendation_id", "references": "care_recommendations.id" },
+    { "table": "file_ai_summaries", "column": "medical_file_id", "references": "medical_files.id" },
+    { "table": "healthcare_encounters", "column": "patient_id", "references": "patients.id" },
+    { "table": "healthcare_encounters", "column": "provider_id", "references": "providers.id" },
+    { "table": "healthcare_encounters", "column": "source_record_id", "references": "patient_data_records.id" },
+    { "table": "hospital_staff", "column": "user_id", "references": "users.id" },
+    { "table": "hospital_staff", "column": "hospital_id", "references": "hospitals.id" },
+    { "table": "lab_results", "column": "patient_id", "references": "patients.id" },
+    { "table": "lab_results", "column": "source_record_id", "references": "patient_data_records.id" },
+    { "table": "medical_files", "column": "patient_id", "references": "patients.id" },
+    { "table": "medical_files", "column": "provider_id", "references": "providers.id" },
+    { "table": "patient_activity_log", "column": "patient_id", "references": "patients.id" },
+    { "table": "patient_allergies", "column": "patient_id", "references": "patients.id" },
+    { "table": "patient_conditions", "column": "patient_id", "references": "patients.id" },
+    { "table": "patient_conditions", "column": "source_record_id", "references": "patient_data_records.id" },
+    { "table": "patient_data_records", "column": "patient_id", "references": "patients.id" },
+    { "table": "patient_medications", "column": "patient_id", "references": "patients.id" },
+    { "table": "patient_medications", "column": "source_record_id", "references": "patient_data_records.id" },
+    { "table": "patient_preferences", "column": "patient_id", "references": "patients.id" },
+    { "table": "patient_procedures", "column": "patient_id", "references": "patients.id" },
+    { "table": "patient_procedures", "column": "encounter_id", "references": "healthcare_encounters.id" },
+    { "table": "patients", "column": "user_id", "references": "users.id" },
+    { "table": "safety_protocols", "column": "care_plan_id", "references": "care_plans.id" }
+  ]
+}

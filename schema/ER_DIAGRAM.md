@@ -1,4 +1,4 @@
-# CarePath AI — Entity Relationship Diagram
+# CareNexus — Entity Relationship Diagram
 
 > **DBMS:** PostgreSQL 18 &nbsp;|&nbsp; **Database:** `carepath` &nbsp;|&nbsp; **42 Tables · 42 FK Constraints**
 
@@ -8,7 +8,7 @@
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════════════╗
-║                    CarePath AI — Entity Relationship Diagram                        ║
+║                    CareNexus — Entity Relationship Diagram                        ║
 ║                    PostgreSQL 18 · carepath database · 42 tables                    ║
 ╠══════════════════════════════════════════════════════════════════════════════════════╣
 ║                                                                                      ║

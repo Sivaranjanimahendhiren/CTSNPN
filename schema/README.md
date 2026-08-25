@@ -1,6 +1,6 @@
-# CarePath AI — Database Schema Documentation
+# CareNexus AI — Database Schema Documentation
 
-> **Project:** CarePath AI — Clinical Decision Support System  
+> **Project:** CareNexus AI — Clinical Decision Support System  
 > **DBMS:** PostgreSQL 18  
 > **Database:** `carepath`  
 > **Host:** `localhost:5432`  

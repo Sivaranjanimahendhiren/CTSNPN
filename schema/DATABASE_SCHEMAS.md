@@ -1,4 +1,4 @@
-# CarePath AI — Complete Database Schema Reference
+# CareNexus — Complete Database Schema Reference
 
 > **DBMS:** PostgreSQL 18 &nbsp;|&nbsp; **Database:** `carepath` &nbsp;|&nbsp; **Tables:** 41 &nbsp;|&nbsp; **Columns:** 415 &nbsp;|&nbsp; **FK Constraints:** 42  
 > _Generated from live database. Last updated: 2026-08-24._
